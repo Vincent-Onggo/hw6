@@ -299,6 +299,8 @@ HashTable<K,V,Prober,Hash,KEqual>::HashTable(
 {
     // Initialize any other data members as necessary
     resizeAlpha_ = resizeAlpha;
+    table_.resize(CAPACITIES[0], nullptr);
+    mIndex_ = 0;
 }
 
 // To be completed
