@@ -22,7 +22,7 @@ struct MyStringHash {
         // Add your code here
         HASH_INDEX_T hash = 0;
         for(size_t i=0; i<k.size(); ++i){
-            hash += rValues[i%5] + letterDigitToNumber(k[i]);
+            hash += rValues[i%5] * letterDigitToNumber(k[i]);
         }
         return hash;
 
