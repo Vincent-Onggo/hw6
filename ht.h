@@ -434,10 +434,10 @@ typename HashTable<K,V,Prober,Hash,KEqual>::HashItem* HashTable<K,V,Prober,Hash,
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::resize()
 {
-    std::vector<HashItem*> oldTable = table_;
+    std::vector<HashItem*> oldTable = std::move(table_);
     table_.resize(CAPACITIES[++mIndex_], nullptr);
 
-    for (HashItem* & item : oldTable) {
+    for (HashItem* item : oldTable) {
         if (item != nullptr && !item->deleted) {
             HASH_INDEX_T loc = probe(item->item.first);
             table_[loc] = item;
