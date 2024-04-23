@@ -20,7 +20,30 @@ struct MyStringHash {
     HASH_INDEX_T operator()(const std::string& k) const
     {
         // Add your code here
+        unsigned long long w[5] = {0}; // Stores base-36 converted values
+        int len = k.length();
+        int numChunks = (len + 5) / 6;  // Calculate the number of chunks
 
+        for (int i = 0; i < numChunks; ++i) {
+            int start = std::max(0, len - 6 * (i + 1)); // Starting index of chunk
+            int end = len - 6 * i; // Ending index of chunk
+            unsigned long long base36Number = 0;
+            unsigned long long power = 1;
+
+            for (int j = end - 1; j >= start; --j) {
+                base36Number += letterDigitToNumber(k[j]) * power;
+                power *= 36;
+            }
+
+            w[4 - i] = base36Number; // Store the base-36 number in w from w[4] to w[0]
+        }
+
+        // Compute the final hash using the formula provided
+        HASH_INDEX_T hash = 0;
+        for (int i = 0; i < 5; ++i) {
+            hash += rValues[i] * w[i];
+        }
+        return hash;
 
     }
 
@@ -28,7 +51,11 @@ struct MyStringHash {
     HASH_INDEX_T letterDigitToNumber(char letter) const
     {
         // Add code here or delete this helper function if you do not want it
-
+        if (isdigit(letter)) {
+            return 26 + (letter - '0'); // '0' to '9' -> 26 to 35
+        } else {
+            return std::tolower(letter) - 'a'; // 'a' to 'z' -> 0 to 25
+        }
     }
 
     // Code to generate the random R values
