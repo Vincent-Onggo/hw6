@@ -102,7 +102,12 @@ public:
     // To be completed
     HASH_INDEX_T next() 
     {
-
+        if (this->numProbes_ >= this->m_) {
+            return this->npos; // Return npos to indicate probing has failed
+        }
+        HASH_INDEX_T loc = (this->start_ + this->numProbes_ * dhstep_) % this->m_;
+        this->numProbes_++;
+        return loc;
 
 
     }
@@ -300,7 +305,10 @@ HashTable<K,V,Prober,Hash,KEqual>::HashTable(
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 HashTable<K,V,Prober,Hash,KEqual>::~HashTable()
 {
-
+    for(HashItem* item : table_){
+        delete item;
+    }
+    table_.clear(); // clear out table
 }
 
 // To be completed
@@ -346,7 +354,10 @@ void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::remove(const KeyType& key)
 {
-
+    HashItem* item = internalFind(key);
+    if (item != nullptr) {
+        item->deleted = true;
+    }
 
 }
 
