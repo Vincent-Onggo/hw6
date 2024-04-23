@@ -294,11 +294,12 @@ const HASH_INDEX_T HashTable<K,V,Prober,Hash,KEqual>::CAPACITIES[] =
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 HashTable<K,V,Prober,Hash,KEqual>::HashTable(
         double resizeAlpha, const Prober& prober, const Hasher& hash, const KEqual& kequal)
-        :  hash_(hash), kequal_(kequal), prober_(prober)
+        : hash_(hash), kequal_(kequal), prober_(prober), resizeAlpha_(resizeAlpha)
 {
-    // Initialize any other data members as necessary
-    resizeAlpha_ = resizeAlpha;
+    mIndex_ = 0; // Start with the smallest capacity
+    table_.resize(CAPACITIES[mIndex_], nullptr); // Initialize the table with null pointers
 }
+
 
 // To be completed
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
@@ -336,9 +337,10 @@ size_t HashTable<K,V,Prober,Hash,KEqual>::size() const
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 {
-    if (this->size() / static_cast<double>(CAPACITIES[mIndex_]) >= resizeAlpha_) {
+    if ((size() + 1) / static_cast<double>(CAPACITIES[mIndex_]) > resizeAlpha_) {
         resize();
     }
+
     HASH_INDEX_T loc = probe(p.first);
     if (loc == npos) {
         throw std::logic_error("No free location found");
@@ -438,18 +440,20 @@ void HashTable<K,V,Prober,Hash,KEqual>::resize()
     if (newCapacityIndex >= sizeof(CAPACITIES)/sizeof(HASH_INDEX_T)) {
         throw std::logic_error("No larger capacities available");
     }
-    std::vector<HashItem*> newTable(CAPACITIES[newCapacityIndex], nullptr);
 
+    std::vector<HashItem*> newTable(CAPACITIES[newCapacityIndex], nullptr);
     for (size_t i = 0; i < table_.size(); ++i) {
-        HashItem* item = table_[i];
-        if (item != nullptr && !item->deleted) {
-            HASH_INDEX_T loc = probe(item->item.first);
-            newTable[loc] = item;
+        HashItem* oldItem = table_[i];
+        if (oldItem && !oldItem->deleted) {
+            HASH_INDEX_T newLoc = hash_(oldItem->item.first) % CAPACITIES[newCapacityIndex];
+            newTable[newLoc] = oldItem;
+        } else {
+            delete oldItem; // Properly delete unused or deleted items
         }
-        delete item;  // Clean up old table
     }
-    this->table_ = newTable;
-    this->mIndex_ = newCapacityIndex;
+
+    table_ = std::move(newTable);
+    mIndex_ = newCapacityIndex;
 
 }
 
