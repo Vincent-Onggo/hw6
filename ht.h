@@ -341,18 +341,17 @@ void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
     if (double(size()) / CAPACITIES[mIndex_] >= resizeAlpha_) {
         resize();
     }
-
-    // Find a location to insert the new item.
     HASH_INDEX_T loc = probe(p.first);
-    // Check if the location is empty or was previously deleted.
-    if (table_[loc] == nullptr || table_[loc]->deleted) {
-        if (table_[loc] != nullptr) {
-            table_[loc]->item = p;
-            table_[loc]->deleted = false;
-        } else {
-            table_[loc] = new HashItem(p);
-        }
+    if (loc == Prober::npos) {
+        throw std::logic_error("Hash table is full or resizing failed");
     }
+    if (!table_[loc]) {
+        table_[loc] = std::make_unique<HashItem>(p);
+    } else {
+        table_[loc]->item = p;
+        table_[loc]->deleted = false;
+    }
+
 }
 
 // To be completed
