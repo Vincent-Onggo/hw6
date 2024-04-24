@@ -344,24 +344,14 @@ void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 
     // Find a location to insert the new item.
     HASH_INDEX_T loc = probe(p.first);
-
-    // If no suitable location was found, the table is effectively full.
-    if (loc == Prober::npos) {
-        throw std::logic_error("Hash table full or resizing failed.");
-    }
-
     // Check if the location is empty or was previously deleted.
     if (table_[loc] == nullptr || table_[loc]->deleted) {
-
         if (table_[loc] != nullptr) {
             table_[loc]->item = p;
             table_[loc]->deleted = false;
         } else {
             table_[loc] = new HashItem(p);
         }
-    } else {
-
-        throw std::logic_error("Hash table probing error");
     }
 }
 
