@@ -286,7 +286,8 @@ private:
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 const HASH_INDEX_T HashTable<K,V,Prober,Hash,KEqual>::CAPACITIES[] =
     {
-        11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717, 51437, 102877,
+        11, 23, 47, 97, 197,
+        397, 797, 1597, 3203, 6421, 12853, 25717, 51437, 102877,
         205759, 411527, 823117, 1646237, 3292489, 6584983, 13169977, 26339969, 52679969,
         105359969, 210719881, 421439783, 842879579, 1685759167
     };
@@ -439,18 +440,21 @@ typename HashTable<K,V,Prober,Hash,KEqual>::HashItem* HashTable<K,V,Prober,Hash,
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::resize()
 {
+    size_t newIndex = mIndex_ + 1;
+    if (newIndex >= sizeof(CAPACITIES) / sizeof(HASH_INDEX_T)) {
+        throw std::logic_error("Maximum capacity reached, cannot resize further.");
+    }
     std::vector<HashItem*> oldTable = std::move(table_);
-    table_.resize(CAPACITIES[++mIndex_], nullptr);
-
+    table_.resize(CAPACITIES[newIndex], nullptr);
+    mIndex_ = newIndex;
     for (HashItem* item : oldTable) {
         if (item != nullptr && !item->deleted) {
             HASH_INDEX_T loc = probe(item->item.first);
             table_[loc] = item;
         } else {
-            delete item;
+            delete item;  // freee
         }
     }
-    
 }
 
 // Almost complete
