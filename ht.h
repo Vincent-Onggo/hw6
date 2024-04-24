@@ -337,17 +337,22 @@ size_t HashTable<K,V,Prober,Hash,KEqual>::size() const
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 {
-    if (double(size()) / CAPACITIES[mIndex_] >= resizeAlpha_) {
+    if (double (size()) / CAPACITIES[mIndex_] >= resizeAlpha_) {
         resize();
     }
     HASH_INDEX_T loc = probe(p.first);
-    if (loc == npos) throw std::logic_error("Hash table full");
-
-    if (table_[loc] == nullptr) {
-        table_[loc] = new HashItem(p);
+    if (loc == npos) {
+        throw std::logic_error("Hash table full or resizing failed.");
+    }
+    if (table_[loc] == nullptr || table_[loc]->deleted) {
+        if (table_[loc] == nullptr) {
+            table_[loc] = new HashItem(p);
+        } else {
+            table_[loc]->item = p;
+            table_[loc]->deleted = false;
+        }
     } else {
-        table_[loc]->item.second = p.second;
-        table_[loc]->deleted = false;
+        table_[loc]->item.second = p.second; // Update the value if key already exists
     }
 
 }
