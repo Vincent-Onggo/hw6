@@ -105,7 +105,7 @@ public:
         if (this->numProbes_ >= this->m_) {
             return this->npos; // Return npos to indicate probing has failed
         }
-        HASH_INDEX_T loc = (this->start_ + this->numProbes_ * dhstep_) % this->m_;
+        HASH_INDEX_T loc = (this->start_ + this->numProbes_) % this->m_;
         this->numProbes_++;
         return loc;
 
@@ -337,7 +337,7 @@ size_t HashTable<K,V,Prober,Hash,KEqual>::size() const
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 {
-    if (float(size() + 1) / CAPACITIES[mIndex_] >= resizeAlpha_) {
+    if (float(size()) / CAPACITIES[mIndex_] >= resizeAlpha_) {
         resize();
     }
     HASH_INDEX_T loc = probe(p.first);
