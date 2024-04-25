@@ -346,6 +346,8 @@ void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
     if (table_[loc] == nullptr) {
         table_[loc] = new HashItem(p);
         size_ ++;
+        total_size++;
+
     } else {
         table_[loc]->item = p;
         table_[loc]->deleted = false;
