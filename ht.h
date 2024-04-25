@@ -453,6 +453,7 @@ void HashTable<K,V,Prober,Hash,KEqual>::resize()
             delete item;  // freee
         }
     }
+    total_size = size();
 }
 
 // Almost complete
