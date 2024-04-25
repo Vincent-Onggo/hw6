@@ -91,39 +91,27 @@ std::set<std::string> boggle(const std::set<std::string>& dict, const std::set<s
 	return result;
 }
 
-bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>& prefix, const std::vector<std::vector<char> >& board, 
+bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>& prefix, const std::vector<std::vector<char> >& board,
 								   std::string word, std::set<std::string>& result, unsigned int r, unsigned int c, int dr, int dc)
 {
 //add your solution here!
     // base cases
 
-    if(r >= board.size() or c >= board[0].size()){
+    if(r >= board.size() or c >= board[0].size() or r < 0 or c < 0){
         return false;
     }
 
     word += board[r][c];
 
-    if(prefix.find(word) == prefix.end()){ // not in prefix
-        return false;
-    }
-    bool completeWord, keepSearching;
-    if(dict.find(word) != dict.end() and prefix.find(word) == dict.end()){
-        completeWord = true;
-    }else{
-        completeWord = false;
-    }
+    bool isWord = dict.find(word) != dict.end();
+    bool isPrefix = prefix.find(word) != prefix.end();
 
-    if(boggleHelper(dict, prefix, board, word, result, r + dr, c + dc, dr, dc)){
-        keepSearching = true;
-    }else{
-        keepSearching = false;
-    }
-    if(completeWord and !keepSearching){
+    if(!isWord and !isPrefix) return false;
+    if(isWord and !boggleHelper(dict, prefix, board, word, result, r + dr, c + dc, dr, dc)){
         result.insert(word);
+        return true;
+    }else{
+        return boggleHelper(dict, prefix, board, word, result, r + dr, c + dc, dr, dc);
     }
-
-    return completeWord or keepSearching;
-
-
 
 }
