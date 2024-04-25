@@ -277,6 +277,7 @@ private:
     // ADD MORE DATA MEMBERS HERE, AS NECESSARY
     double resizeAlpha_;
     size_t size_;
+    size_t total_size;
 };
 
 // ----------------------------------------------------------------------------
@@ -304,6 +305,7 @@ HashTable<K,V,Prober,Hash,KEqual>::HashTable(
     table_.resize(CAPACITIES[0], nullptr);
     mIndex_ = 0;
     size_ = 0;
+    total_size = 0;
 }
 
 // To be completed
@@ -334,7 +336,7 @@ size_t HashTable<K,V,Prober,Hash,KEqual>::size() const
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 {
-    if (double(size()) / CAPACITIES[mIndex_] >= resizeAlpha_) {
+    if (double(total_size) / CAPACITIES[mIndex_] >= resizeAlpha_) {
         resize();
     }
     HASH_INDEX_T loc = probe(p.first);
