@@ -276,6 +276,7 @@ private:
 
     // ADD MORE DATA MEMBERS HERE, AS NECESSARY
     double resizeAlpha_;
+    size_t size_;
 };
 
 // ----------------------------------------------------------------------------
@@ -302,6 +303,7 @@ HashTable<K,V,Prober,Hash,KEqual>::HashTable(
     resizeAlpha_ = resizeAlpha;
     table_.resize(CAPACITIES[0], nullptr);
     mIndex_ = 0;
+    size_ = 0;
 }
 
 // To be completed
@@ -325,13 +327,7 @@ bool HashTable<K,V,Prober,Hash,KEqual>::empty() const
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 size_t HashTable<K,V,Prober,Hash,KEqual>::size() const
 {
-    size_t count = 0;
-    for (HashItem*  item : table_) {
-        if (item != nullptr && !item->deleted) {
-            count++;
-        }
-    }
-    return count;
+    return size_;
 }
 
 // To be completed
@@ -347,9 +343,10 @@ void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
     }
     if (table_[loc] == nullptr) {
         table_[loc] = new HashItem(p);
+        size_ ++;
     } else {
         table_[loc]->item = p;
-        table_[loc]->deleted = false; // Ensures that if it was marked as deleted, it's now active
+        table_[loc]->deleted = false;
     }
 
 }
@@ -361,6 +358,7 @@ void HashTable<K,V,Prober,Hash,KEqual>::remove(const KeyType& key)
     HashItem* item = internalFind(key);
     if (item != nullptr) {
         item->deleted = true;
+        size_ --;
     }
 
 }
